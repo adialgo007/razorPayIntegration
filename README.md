@@ -70,3 +70,12 @@ order Id
 cardId or UPI Id (whatever applicable to that particular payment method)
 ```
 
+# Deployment on Cloud
+The application can be deployed as Kubernetes pods on Kubernetes nodes. Multiple pods can be spawned depending on the load of the system. Few of the other resources which needs to be deployed which might be compulsory for the application to run:
+
+1. Databse (Repicated ideally for high availability and durability)
+2. Cache (We can use distributed cache like redis sentinel)
+3. Consul (To store application properties out of the application)
+4. Vault (To store secrets of the application)
+
+
