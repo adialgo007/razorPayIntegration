@@ -32,10 +32,41 @@ iii. Read timeout means the request has reached razor pay, but we couldn't get t
 
 iv. This might be some exception like internal server error or something else. Int his case, need to confirm with the third party (razor pay) whether there are any special HTTP status codes which would be marked as pending. If we get that status code, then we can mark the order as pending, otherwise we wcan retry to create order 2 more times and then update the status.
 
+The habdling of above 4 cases would handle all type of order whether it is success, failed and pending. The important thing is the order status on our system and on razor pay system should be in sync. It should not be like on our system, the order status is failed and it is success on razor pay side. Above 4 cases tries to avoid those scenarios.
+
 3. Once the pay order is done, we would store all the request and response in a separate collection which stores all the interactions with the razor pay. This collection would be useful for reconciliation.
 
 4. After updating the order, we should update the order collection in DB as well.
 
 5. The pay order API may be called in a separate thread and the UI might be polling to get order status from an API exposed by the system. The UI can stop polling after sometime like 2 minutes and if the order status is still pending, just mark the order as pending on UI side.
 
+6. Payment info can be stored in Order collection only rather than having a separate payment details if we are using NoSQL DB.
+
+7. The minimal Order Collection can contain following info:
+
+```
+unique OrderId
+logonId (for e.g email or phone number)
+order date 
+order status
+Items bought
+Payment Details
+total order amount
+applied promo/coupon codes
+Response from Razor Pay for creating the order
+```
+
+The minimal Payment Details may store following info:
+
+```
+unique payment Id
+payment method (for e.g. credit card, debit card or UPI)
+payment description (for e.g. SBI debit card)
+payment date and time
+total payment amount
+payment status
+handling fee
+order Id 
+cardId or UPI Id (whatever applicable to that particular payment method)
+```
 
