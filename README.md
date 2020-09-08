@@ -71,7 +71,7 @@ cardId or UPI Id (whatever applicable to that particular payment method)
 ```
 
 # Deployment on Cloud
-The application can be deployed as Kubernetes pods on Kubernetes nodes. Multiple pods can be spawned depending on the load of the system. Few of the other resources which needs to be deployed, which might be compulsory for the application to run:
+The application can be deployed as Kubernetes pods on Kubernetes nodes. Multiple pods can be spawned depending on the load of the system. Few of the other resources which might be compulsory for the application to run should be deployed as well. Those might be following:
 
 1. Database (Replicated ideally for high availability and durability).
 2. Cache (We can use distributed cache like redis sentinel for high availability and durability).
