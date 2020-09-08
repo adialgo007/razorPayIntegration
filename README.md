@@ -1,6 +1,6 @@
 # Integration With Razor Pay
 
-1. Need to configure a rest template for integration with Razor Pay. If using spring boot framework, we can make a bean of Rest Template (with annotation @Bean) and autowire it at the required places and use it. Also, for better control and flexibility, we need to configure following in application.properties and configure the rest template with those properties.
+1. Need to configure a rest template for integration with Razor Pay. If we are using spring boot framework, we can make a bean of Rest Template (with annotation @Bean) and autowire it at the required places and use it. For better control and flexibility, we need to configure following in application.properties and configure the rest template with those properties.
 
 ```
 razorPay.connection.request.time.out=5000
@@ -12,7 +12,7 @@ razorPay.total.max=1000
 
   The above configurations are for timeouts and number of connections to a host and total number of connections that can be opened from the connection pool.
   
-2. To create an order, call the create order API of razor pay with the required params and using the rest template configured in 1st. All the request params should be validated before calling the API like amount is > 0, currency ISO code is valid etc. During the call to razor pay API, following cases may arise:
+2. To create an order, call the create order API of razor pay with the required params using the rest template configured in 1st. All the request params should be validated before calling the API like amount is > 0, currency ISO code is valid etc. During the call to razor pay API, following cases may arise:
 
 i. We got some valid response from razor pay i.e without any exception.
 
@@ -26,11 +26,11 @@ For each of the above cases, the decision to be made is described below:
 
 i. For valid response, we just check the status of the order and update the order status accordingly whether it is sucess/failed/pending etc.
 
-ii.  Connect timeout means we were not able to connect to Razor Pay. In this case, we can call the razor pay API again. The number of retries in this case might be 2 or some other value depending on the SLA. So, if we get connect timeout 3 times continuously, we can mark the order as failed with some default error code and error message mapped on the application side for connect timeout.
+ii.  Connect timeout means we were not able to connect to Razor Pay. In this case, we can call the create order API again. The number of retries in this case might be 2 or some other value depending on the SLA. If we get connect timeout 3 times (this number can be configured) continuously, we can mark the order as failed with some default error code and error message mapped on the application side for connect timeout.
 
-iii. Read timeout means the request has reached razor pay, but we couldn't get the response back in the request timeout configured in 1st. In this case, instead of retrying again for create order, we would just fetch order and get the status of the order. We can retry to fetch order 2 times and if we get valid response from razor pay, we would update the order. If even after 2 retries, we get request timeouts, we would mark the order as pending. We can configure a scheduled job (like Rundeck) etc which would run every 15 minutes or so. The purpose of the job would be to fetch all the pending orders and get the order status of those pending jobs and update the order status in the DB for that order once we get a valid response from razor pay.
+iii. Read timeout means the request has reached razor pay, but we couldn't get the response back in the request timeout configured in 1st. In this case, instead of retrying again for create order, we would just fetch order and get the status of the order. We can retry to fetch order 2 times and if we get valid response from razor pay, we would update the order. If we get request timeouts even after 2 retries, we would mark the order as pending. We can configure a scheduled job (like Rundeck) etc which would run every 15 minutes or so. The purpose of the job would be to fetch all the pending orders and get the order status of those pending jobs and update the order status in the DB for that order once we get a valid response from razor pay.
 
-iv. This might be some exception like internal server error or something else. Int this case, we need to confirm with the third party (razor pay) whether there are any special HTTP status codes which would be marked as pending. If we get that status code, then we can mark the order as pending, otherwise we can retry to create order 2 more times and then update the status.
+iv. There might be some exception like internal server error or something else. Int this case, we need to confirm with the third party (razor pay) whether there are any special HTTP status codes which would be marked as pending. If we get that status code, then we can mark the order as pending, otherwise we can retry to create order 2 more times and then update the status.
 
 The habdling of above 4 cases would handle all type of order whether it is success, failed and pending. The important thing is the order status on our system and on razor pay system should be in sync. It should not be like on our system the order status is failed and it is success on razor pay side. Above 4 cases tries to avoid those scenarios.
 
@@ -74,7 +74,7 @@ cardId or UPI Id (whatever applicable to that particular payment method)
 The application can be deployed as Kubernetes pods on Kubernetes nodes. Multiple pods can be spawned depending on the load of the system. Few of the other resources which needs to be deployed which might be compulsory for the application to run:
 
 1. Databse (Repicated ideally for high availability and durability).
-2. Cache (We can use distributed cache like redis sentinel).
+2. Cache (We can use distributed cache like redis sentinel for high availability and durability).
 3. Consul (To store application properties out of the application).
 4. Vault (To store secrets of the application).
 
