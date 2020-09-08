@@ -32,7 +32,7 @@ iii. Read timeout means the request has reached razor pay, but we couldn't get t
 
 iv. This might be some exception like internal server error or something else. Int his case, need to confirm with the third party (razor pay) whether there are any special HTTP status codes which would be marked as pending. If we get that status code, then we can mark the order as pending, otherwise we wcan retry to create order 2 more times and then update the status.
 
-3. Once the order is created, we would store all the request and response in a separate collection which stores all the interactions with the razor pay. This collection would be useful for reconciliation.
+3. Once the pay order is done, we would store all the request and response in a separate collection which stores all the interactions with the razor pay. This collection would be useful for reconciliation.
 
 4. After updating the order, we should update the order collection in DB as well.
 
